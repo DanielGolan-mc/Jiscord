@@ -13,12 +13,7 @@ import java.util.HashMap;
 
 import static net.danielgolan.jiscord.http.DiscordAPI.GSON;
 
-public sealed interface GuildPreview extends DiscordObject permits Guild, GuildPreview.Model {
-
-    String getName();
-
-    @Nullable String getIcon(); //TODO: add images support
-
+public sealed interface GuildPreview extends DiscordObject.Named, DiscordObject.Iconable permits Guild, GuildPreview.Model {
     @Nullable String getSplash();
 
     @Nullable String getDiscoverySplash();
@@ -31,9 +26,7 @@ public sealed interface GuildPreview extends DiscordObject permits Guild, GuildP
 
     @Nullable Object[] getStickers(); //TODO: Add Sticker Support
 
-    sealed class Model extends DiscordObject.Model implements GuildPreview permits Guild.Model {
-        protected final String name;
-        protected final @Nullable String icon;
+    sealed class Model extends DiscordObject.NamedAndIconableModel implements GuildPreview permits Guild.Model {
         protected final @Nullable String splash;
         @SerializedName("discovery_splash")
         protected final @Nullable String discoverySplash;
@@ -43,26 +36,13 @@ public sealed interface GuildPreview extends DiscordObject permits Guild, GuildP
         protected final @Nullable Object[] stickers;
 
         public Model(Snowflake id, String name, @Nullable String icon, @Nullable String splash, @Nullable String discoverySplash, Object[] emojis, String[] features, @Nullable String description, @Nullable Object[] stickers) {
-            super(id);
-            this.name = name;
-            this.icon = icon;
+            super(id, name, icon);
             this.splash = splash;
             this.discoverySplash = discoverySplash;
             this.emojis = emojis;
             this.features = features;
             this.description = description;
             this.stickers = stickers;
-        }
-
-        @Override
-        public String getName() {
-            return name;
-        }
-
-        @Nullable
-        @Override
-        public String getIcon() {
-            return icon;
         }
 
         @Nullable
