@@ -17,7 +17,8 @@ public final class DiscordAPI {
     public final static ObjectMapper OBJECT_MAPPER;
     public final static Gson GSON;
 
-    private DiscordAPI() {}
+    private DiscordAPI() {
+    }
 
     public enum Endpoint {
         GET_GUILD("/guilds/%s", RequestType.GET);
@@ -39,25 +40,43 @@ public final class DiscordAPI {
 
         /**
          * @param input arguments, formatted {@code "...?key=value"}
-         * @param args {@link java.util.Formatter} arguments
+         * @param args  {@link java.util.Formatter} arguments
          * @return URI
          * @throws URISyntaxException when URI syntax is wrong
          */
         @Contract(pure = true)
         public @NotNull URI makeURI(HashMap<String, Object> input, Object... args) throws URISyntaxException {
-            return new URI(("https://discord.com/api/v" + API_VERSION + this.address).formatted(args));
-        }
-    }
-    public enum RequestType {
-            GET, POST
-        }
+            StringBuilder result = new StringBuilder(("https://discord.com/api/v" + API_VERSION + this.address).formatted(args));
 
-        static {
-            CLIENT = HttpClient.newHttpClient();
-            OBJECT_MAPPER = new ObjectMapper();
-            GSON = new GsonBuilder()
-                    .serializeNulls()
-                    .setPrettyPrinting()
-                    .create();
+            if (input != null && !input.isEmpty()) {
+                var alreadyIterated = new Object() {
+                    boolean value = false;
+                };
+
+                input.forEach((key, value) -> {
+                    if (alreadyIterated.value)
+                        result.append('&').append(key).append('=').append(value);
+                    else {
+                        result.append('?').append(key).append('=').append(value);
+                        alreadyIterated.value = true;
+                    }
+                });
+            }
+
+            return new URI(result.toString());
         }
     }
+
+    public enum RequestType {
+        GET, POST
+    }
+
+    static {
+        CLIENT = HttpClient.newHttpClient();
+        OBJECT_MAPPER = new ObjectMapper();
+        GSON = new GsonBuilder()
+                .serializeNulls()
+                .setPrettyPrinting()
+                .create();
+    }
+}
