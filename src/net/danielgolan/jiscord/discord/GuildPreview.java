@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.HashMap;
 
 import static net.danielgolan.jiscord.http.DiscordAPI.GSON;
 
@@ -80,23 +79,16 @@ public sealed interface GuildPreview extends DiscordObject.Named, DiscordObject.
         }
     }
 
-    static Guild getGuild(Snowflake id) throws IOException, InterruptedException {
-        return getGuild(id, false);
+    static GuildPreview get(Snowflake id) throws IOException, InterruptedException {
+        return GSON.fromJson(getRaw(id),GuildPreview.Model.class);
     }
 
-    static Guild getGuild(Snowflake id, boolean withCounts) throws IOException, InterruptedException {
-        return GSON.fromJson(getRawGuild(id, withCounts),Guild.Model.class);
-    }
-
-    static String getRawGuild(Snowflake id, boolean withCounts) throws IOException, InterruptedException {
+    static String getRaw(Snowflake id) throws IOException, InterruptedException {
         HttpRequest request;
 
         // handle URISyntaxException
         try {
-            HashMap<String, Object> input = new HashMap<>();
-            input.put("with_counts", withCounts);
-
-            request = HttpRequest.newBuilder().uri(DiscordAPI.Endpoint.GET_GUILD.makeURI(input, id)).build();
+            request = HttpRequest.newBuilder().uri(DiscordAPI.Endpoint.GET_GUILD_PREVIEW.makeURI(id)).build();
         } catch (URISyntaxException e) {
             throw new RuntimeException("Jiscord uses an illegal URI address" + e);
         }

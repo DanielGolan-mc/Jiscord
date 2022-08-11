@@ -21,7 +21,7 @@ public final class DiscordAPI {
     }
 
     public enum Endpoint {
-        GET_GUILD("/guilds/%s", RequestType.GET);
+        GET_GUILD("/guilds/%s", RequestType.GET), GET_GUILD_PREVIEW("/guilds/%s/preview", RequestType.GET);
         public final String address;
         public final RequestType type;
 
